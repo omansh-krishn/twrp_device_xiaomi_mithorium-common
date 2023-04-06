@@ -1,7 +1,8 @@
 [
   {
-    "repository": "android_device_xiaomi_kernel-mithorium",
+    "remote": "github"
+    "repository": "omansh-krishn/android_device_xiaomi_kernel-mithorium",
     "target_path": "device/xiaomi/kernel-mithorium",
-    "branch": "master"
+    "branch": "santoni"
   }
 ]
