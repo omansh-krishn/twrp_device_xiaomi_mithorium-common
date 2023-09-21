@@ -27,8 +27,13 @@ BUILD_BROKEN_ELF_PREBUILT_PRODUCT_COPY_FILES := true
 
 # Kernel
 BOARD_KERNEL_CMDLINE := androidboot.hardware=qcom msm_rtb.filter=0x237 ehci-hcd.park=3 lpm_levels.sleep_disabled=1 androidboot.bootdevice=7824900.sdhci androidboot.usbconfigfs=true loop.max_part=7
-BOARD_KERNEL_CMDLINE += console=ttyMSM0,115200,n8 androidboot.console=ttyMSM0 earlycon=msm_serial_dm,0x78B0000 firmware_class.path=/system/etc/firmware printk.devkmsg=on
-BOARD_KERNEL_CMDLINE += androidboot.selinux=permissive
+BOARD_KERNEL_CMDLINE += console=ttyMSM0,115200,n8 androidboot.console=ttyMSM0 firmware_class.path=/system/etc/firmware printk.devkmsg=on
+BOARD_KERNEL_CMDLINE += androidboot.mode=recovery androidboot.selinux=permissive
+ifeq ($(TARGET_KERNEL_VERSION),4.19)
+BOARD_KERNEL_CMDLINE += earlycon=msm_hsl_uart,0x78B0000
+else
+BOARD_KERNEL_CMDLINE += earlycon=msm_serial_dm,0x78B0000
+endif
 ifeq ($(PRODUCT_USE_DYNAMIC_PARTITIONS),true)
 BOARD_KERNEL_CMDLINE += androidboot.android_dt_dir=/non-existent androidboot.boot_devices=soc/7824900.sdhci
 endif
@@ -67,17 +72,19 @@ TW_EXTRA_LANGUAGES := true
 ifeq ($(MITHORIUM_INCLUDE_CRYPTO),true)
 TW_INCLUDE_CRYPTO := true
 
-PLATFORM_VERSION := 16.1.0
+PLATFORM_VERSION := 99.87.36
 PLATFORM_VERSION_LAST_STABLE := $(PLATFORM_VERSION)
 PLATFORM_SECURITY_PATCH := 2099-12-31
 VENDOR_SECURITY_PATCH := $(PLATFORM_SECURITY_PATCH)
 
 TARGET_RECOVERY_DEVICE_MODULES += \
+    libion \
     libxml2 \
     vendor.display.config@1.0 \
     vendor.display.config@2.0
 
 RECOVERY_LIBRARY_SOURCE_FILES += \
+    $(TARGET_OUT_SHARED_LIBRARIES)/libion.so \
     $(TARGET_OUT_SHARED_LIBRARIES)/libxml2.so \
     $(TARGET_OUT_SYSTEM_EXT_SHARED_LIBRARIES)/vendor.display.config@1.0.so \
     $(TARGET_OUT_SYSTEM_EXT_SHARED_LIBRARIES)/vendor.display.config@2.0.so
@@ -86,7 +93,7 @@ endif
 # TWRP - Crypto - FBE
 ifeq ($(MITHORIUM_INCLUDE_CRYPTO_FBE),true)
 BOARD_USES_QCOM_FBE_DECRYPTION := true
-TW_USE_FSCRYPT_POLICY := 1
+TW_USE_FSCRYPT_POLICY ?= 1
 endif
 
 # TWRP - Crypto - FDE

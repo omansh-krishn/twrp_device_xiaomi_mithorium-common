@@ -4,7 +4,15 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
+# Defines
 TARGET_USES_XIAOMI_MITHORIUM_COMMON_TREE := true
+MITHORIUM_PROPRIETARY_FILES_DIR ?= $(LOCAL_PATH)/proprietary
+
+ifeq ($(TARGET_KERNEL_VERSION),4.19)
+ifneq ($(wildcard device/xiaomi/mithorium-common-4.19/proprietary/),)
+MITHORIUM_PROPRIETARY_FILES_DIR := device/xiaomi/mithorium-common-4.19/proprietary
+endif
+endif
 
 # Inherit AOSP product makefiles
 $(call inherit-product, $(SRC_TARGET_DIR)/product/base.mk)
@@ -78,7 +86,7 @@ ifeq ($(MITHORIUM_INCLUDE_CRYPTO),true)
 ifeq ($(MITHORIUM_LEGACY_CRYPTO),true)
 ifeq ($(MITHORIUM_INCLUDE_CRYPTO_FBE),true)
 PRODUCT_COPY_FILES += \
-    $(call find-copy-subdir-files,*,$(LOCAL_PATH)/proprietary/gatekeeper/system/,$(TARGET_COPY_OUT_RECOVERY)/root/system/)
+    $(call find-copy-subdir-files,*,$(MITHORIUM_PROPRIETARY_FILES_DIR)/gatekeeper/system/,$(TARGET_COPY_OUT_RECOVERY)/root/system/)
 endif
 endif
 endif
@@ -87,14 +95,14 @@ endif
 ifeq ($(MITHORIUM_INCLUDE_CRYPTO),true)
 ifeq ($(MITHORIUM_LEGACY_CRYPTO),true)
 PRODUCT_COPY_FILES += \
-    $(call find-copy-subdir-files,*,$(LOCAL_PATH)/proprietary/keystore/system/,$(TARGET_COPY_OUT_RECOVERY)/root/system/)
+    $(call find-copy-subdir-files,*,$(MITHORIUM_PROPRIETARY_FILES_DIR)/keystore/system/,$(TARGET_COPY_OUT_RECOVERY)/root/system/)
 endif
 endif
 
 # Proprietary - QSEECOMd
 ifeq ($(MITHORIUM_INCLUDE_CRYPTO),true)
 PRODUCT_COPY_FILES += \
-    $(call find-copy-subdir-files,*,$(LOCAL_PATH)/proprietary/qseecomd/system/,$(TARGET_COPY_OUT_RECOVERY)/root/system/)
+    $(call find-copy-subdir-files,*,$(MITHORIUM_PROPRIETARY_FILES_DIR)/qseecomd/system/,$(TARGET_COPY_OUT_RECOVERY)/root/system/)
 endif
 
 # Proprietary - QTI Gatekeeper 1.0
@@ -102,7 +110,7 @@ ifeq ($(MITHORIUM_INCLUDE_CRYPTO),true)
 ifneq ($(MITHORIUM_LEGACY_CRYPTO),true)
 ifeq ($(MITHORIUM_INCLUDE_CRYPTO_FBE),true)
 PRODUCT_COPY_FILES += \
-    $(call find-copy-subdir-files,*,$(LOCAL_PATH)/proprietary/qti-gatekeeper-1-0/system/,$(TARGET_COPY_OUT_RECOVERY)/root/system/)
+    $(call find-copy-subdir-files,*,$(MITHORIUM_PROPRIETARY_FILES_DIR)/qti-gatekeeper-1-0/system/,$(TARGET_COPY_OUT_RECOVERY)/root/system/)
 endif
 endif
 endif
@@ -111,19 +119,26 @@ endif
 ifeq ($(MITHORIUM_INCLUDE_CRYPTO),true)
 ifneq ($(MITHORIUM_LEGACY_CRYPTO),true)
 PRODUCT_COPY_FILES += \
-    $(call find-copy-subdir-files,*,$(LOCAL_PATH)/proprietary/qti-keymaster-common/system/,$(TARGET_COPY_OUT_RECOVERY)/root/system/)
+    $(call find-copy-subdir-files,*,$(MITHORIUM_PROPRIETARY_FILES_DIR)/qti-keymaster-common/system/,$(TARGET_COPY_OUT_RECOVERY)/root/system/)
 ifeq ($(MITHORIUM_KEYMASTER_VERSION),3.0)
 PRODUCT_COPY_FILES += \
-    $(call find-copy-subdir-files,*,$(LOCAL_PATH)/proprietary/qti-keymaster-3-0/system/,$(TARGET_COPY_OUT_RECOVERY)/root/system/)
+    $(call find-copy-subdir-files,*,$(MITHORIUM_PROPRIETARY_FILES_DIR)/qti-keymaster-3-0/system/,$(TARGET_COPY_OUT_RECOVERY)/root/system/)
 else ifeq ($(MITHORIUM_KEYMASTER_VERSION),4.0)
 PRODUCT_COPY_FILES += \
-    $(call find-copy-subdir-files,*,$(LOCAL_PATH)/proprietary/qti-keymaster-4-0/system/,$(TARGET_COPY_OUT_RECOVERY)/root/system/)
+    $(call find-copy-subdir-files,*,$(MITHORIUM_PROPRIETARY_FILES_DIR)/qti-keymaster-4-0/system/,$(TARGET_COPY_OUT_RECOVERY)/root/system/)
 endif
 endif
 endif
 
 # Proprietary - END
 endif # MITHORIUM_USES_DEVICE_SPECIFIC_BLOBS
+
+# Vintf
+ifeq ($(TARGET_KERNEL_VERSION),4.19)
+PRODUCT_COPY_FILES += $(LOCAL_PATH)/vintf/manifest_tl5.xml:$(TARGET_COPY_OUT_RECOVERY)/root/vendor/etc/vintf/manifest.xml
+else
+PRODUCT_COPY_FILES += $(LOCAL_PATH)/vintf/manifest.xml:$(TARGET_COPY_OUT_RECOVERY)/root/vendor/etc/vintf/manifest.xml
+endif
 
 # Vintf - Keymaster
 ifeq ($(MITHORIUM_INCLUDE_CRYPTO),true)
