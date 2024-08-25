@@ -6,14 +6,10 @@ cc_binary {
         "-Werror",
         "-Wunused",
     ],
+    shared_libs: ["libcutils"],
     srcs: [
         "main.c",
     ],
-    target: {
-        recovery: {
-            cflags: ["-DRECOVERY"],
-        },
-    },
     init_rc: ["charger_led.rc"],
     recovery: true,
 }
